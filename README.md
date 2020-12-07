@@ -193,16 +193,16 @@ tmpfs                     100496       0    100496   0% /run/user/1000
   mount /dev/test/first /mnt
   ```
   Что с памятью? `df`:
-    ```
-    Filesystem             1K-blocks    Used Available Use% Mounted on
-    devtmpfs                  488644       0    488644   0% /dev
-    tmpfs                     502480       0    502480   0% /dev/shm
-    tmpfs                     502480   12960    489520   3% /run
-    tmpfs                     502480       0    502480   0% /sys/fs/cgroup
-    /dev/sda1               10474496 3344760   7129736  32% /
-    tmpfs                     100496       0    100496   0% /run/user/1000
-    /dev/mapper/test-first    586803  392292    162770  71% /mnt
-    ```
+  ```
+  Filesystem             1K-blocks    Used Available Use% Mounted on
+  devtmpfs                  488644       0    488644   0% /dev
+  tmpfs                     502480       0    502480   0% /dev/shm
+  tmpfs                     502480   12960    489520   3% /run
+  tmpfs                     502480       0    502480   0% /sys/fs/cgroup
+  /dev/sda1               10474496 3344760   7129736  32% /
+  tmpfs                     100496       0    100496   0% /run/user/1000
+  /dev/mapper/test-first    586803  392292    162770  71% /mnt
+  ```
 5. Снэпшоты.
   - Создаём файлы и раздел снэпшота:
   ```
