@@ -192,7 +192,7 @@ tmpfs                     100496       0    100496   0% /run/user/1000
   lvreduce /dev/test/first -L 600M
   mount /dev/test/first /mnt
   ```
-    Что с памятью? `df`:
+  Что с памятью? `df`:
     ```
     Filesystem             1K-blocks    Used Available Use% Mounted on
     devtmpfs                  488644       0    488644   0% /dev
