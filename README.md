@@ -1,7 +1,95 @@
 # ДЗ 5 по технологиям разработки ПО
 ## Задание
- Надо было по мануалу побаловаться с PV и LV
+ Надо было по мануалу побаловаться с PV и LV. ТЗ:
+<details>
+  <summary>Посмотреть ТЗ</summary>  
+Нужна система linux с кучей дисков/разделов.
+*Можно попробовать на loop, но их нужно исключить из фильтра в файле конфигурации lvm.
 
+Практика с lvm:
+Смотрим текущее состояние:
+lsblk
+lvmdiskscan
+
+Добавляем диск как PV:
+pvcreate /dev/sdb
+pvdisplay
+lvmdiskscan
+pvs
+
+Создаём VG на базе PV
+vgcreate mai /dev/sdb
+vgdisplay -v mai
+vgs
+
+Создаём LV на базе VG
+lvcreate -l+100%FREE -n first mai
+lvdisplay
+lvs
+
+Создаём файловую систему, монтируем её и проверяем
+mkfs.ext4 /dev/mai/first
+mount /dev/mai/first /mnt 
+mount
+
+Создаём файл на весь размер точки монтирования
+dd if=/dev/zero of=/mnt/test.file bs=1M count=8000 status=progress
+df -h
+
+Расширяем LV за счёт нового PV в VG
+pvcreate /dev/sdc 
+vgextend mai /dev/sdc 
+lvextend -l+100%FREE /dev/mai/first
+lvdisplay
+lvs
+df -h
+
+Чуда не произошло, поэтому расширяем файловую систему
+resize2fs /dev/mai/first
+df -h
+
+Уменьшаем файловую систему и LV
+umount /mnt
+e2fsck -fy /dev/mai/first
+resize2fs /dev/mai/first 1100M
+lvreduce /dev/mai/first -L 1100M
+e2fsck -fy /dev/mai/first
+mount /dev/mai/first /mnt
+df -h
+
+Создаём несколько файлов и делаем снимок
+touch /mnt/file{1..5}
+lvcreate -L 100M -s -n snapsh /dev/mai/first
+lvs
+lsblk
+
+Удаляем несколько файлов
+rm -f /mnt/file{1..3}
+ls /mnt
+
+Монтируем снимок и проверяем, что файлы там есть. Отмонтируем.
+mkdir /snap
+mount /dev/mai/snapsh /snap
+ls /snap
+umount /snap
+
+Отмонтируем файловую систему и производим слияние. Проверяем, что файлы на месте.
+umount /mnt
+lvconvert --merge /dev/mai/snapsh
+mount /dev/mai/first /mnt
+ls /mnt
+
+Добавляем ещё PV, VG и создаём LV-зеркало.
+pvcreate /dev/sd{d,e}
+vgcreate vgmirror /dev/sd{d,e}
+lvcreate -l+80%FREE -m1 -n mirror1 vgmirror
+
+Наблюдаем синхронизацию.
+lvs
+lsblk
+
+</details>
+ 
 ## Инструкция
 
 1. Настраиваем виртуалку - нужно много разделов.
@@ -41,9 +129,8 @@ sdb      8:16   0     2G  0 disk
  ```
  - Создаём логический раздел first в группе test на 100% объёма:
  ```
- lvcreate -l+100%FREE -n first test
- 
- lsblk
+ # lvcreate -l+100%FREE -n first test
+ # lsblk
 NAME           MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
 sda              8:0    0    10G  0 disk
 └─sda1           8:1    0    10G  0 part /
